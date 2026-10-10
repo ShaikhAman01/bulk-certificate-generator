@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: certs
+      POSTGRES_PASSWORD: certs
+      POSTGRES_DB: certs
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U certs -d certs"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+volumes:
+  pgdata:
