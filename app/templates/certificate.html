@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Certificate {{ certificate_number }}</title>
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    body { margin: 0; font-family: "DejaVu Serif", Georgia, serif; color: #1f2937; }
+    .page {
+      box-sizing: border-box;
+      width: 297mm;
+      height: 210mm;
+      padding: 14mm;
+    }
+    .frame {
+      box-sizing: border-box;
+      height: 100%;
+      border: 3mm double #1e3a5f;
+      padding: 18mm 20mm;
+      text-align: center;
+    }
+    .title { font-size: 34pt; letter-spacing: 3pt; color: #1e3a5f; margin: 0; }
+    .subtitle { font-size: 13pt; margin: 4mm 0 12mm; text-transform: uppercase; letter-spacing: 2pt; }
+    .label { font-size: 13pt; margin: 0; }
+    .name {
+      font-size: 30pt;
+      font-weight: bold;
+      margin: 6mm 0;
+      padding: 0 10mm 2mm;
+      display: inline-block;
+      max-width: 100%;
+      box-sizing: border-box;
+      border-bottom: 0.4mm solid #9ca3af;
+      overflow-wrap: anywhere;
+    }
+    .course { font-size: 20pt; font-style: italic; margin: 4mm 0 14mm; }
+    .footer { display: flex; justify-content: space-between; font-size: 11pt; margin-top: 10mm; }
+    .footer div { width: 30%; }
+    .footer .value { font-weight: bold; font-size: 12pt; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="frame">
+      <h1 class="title">CERTIFICATE</h1>
+      <p class="subtitle">of completion</p>
+
+      <p class="label">This is to certify that</p>
+      <p class="name">{{ recipient_name }}</p>
+      <p class="label">has successfully completed</p>
+      <p class="course">{{ course_name }}</p>
+
+      <div class="footer">
+        <div>
+          <p class="value">{{ issued_on.strftime("%d %B %Y") }}</p>
+          <p>Date of issue</p>
+        </div>
+        <div>
+          {% if issuer %}
+          <p class="value">{{ issuer }}</p>
+          <p>Issued by</p>
+          {% endif %}
+        </div>
+        <div>
+          <p class="value">{{ certificate_number }}</p>
+          <p>Certificate no.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
