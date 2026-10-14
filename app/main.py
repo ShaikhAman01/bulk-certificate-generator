@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api import jobs as jobs_api
 from app.db import init_db
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()

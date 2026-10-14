@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 from typing import Annotated, Any
 
-from pydantic import(
+from pydantic import (
     AfterValidator,
     BaseModel,
     ConfigDict,
@@ -13,6 +13,7 @@ from pydantic import(
 
 from app.config import settings
 from app.models import JobStatus
+
 
 class RecipientIn(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)

@@ -13,10 +13,10 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
+
 
 class JobStatus(enum.StrEnum):
     PENDING = "PENDING"

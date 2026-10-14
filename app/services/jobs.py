@@ -2,16 +2,16 @@ from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import(
+from app.models import (
     Certificate,
     CertificateJob,
     CertificateStatus,
     ErrorCode,
     JobStatus,
 )
-
 from app.schemas import JobCreate, RecipientIn
 
 RAW_VALUE_MAX = 500
@@ -92,3 +92,11 @@ def create_job(db: Session, payload: JobCreate) -> CertificateJob:
     db.add(job)
     db.commit()
     return job
+
+def get_status_counts(db: Session, job_id) -> dict[CertificateStatus, int]:
+    rows = db.execute(
+        select(Certificate.status, func.count())
+        .where(Certificate.job_id == job_id)
+        .group_by(Certificate.status)
+    ).all()
+    return {status: count for status, count in rows}

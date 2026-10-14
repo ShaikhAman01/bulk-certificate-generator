@@ -1,9 +1,10 @@
 from collections.abc import Iterator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
+
 
 class Base(DeclarativeBase):
     pass
@@ -16,5 +17,5 @@ def get_db() -> Iterator[Session]:
         yield db
 
 def init_db() -> None:
-    import app.models # noqa: F401
+    import app.models  # noqa: F401
     Base.metadata.create_all(bind=engine)
