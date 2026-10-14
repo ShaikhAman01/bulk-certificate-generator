@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api import certificates as certificates_api
 from app.api import jobs as jobs_api
 from app.db import init_db
 
@@ -17,6 +18,7 @@ app = FastAPI(title="Bulk Certificate Generator",
 )
 
 app.include_router(jobs_api.router, prefix="/api/v1")
+app.include_router(certificates_api.router, prefix="/api/v1")
 
 @app.get("/health")
 def health():

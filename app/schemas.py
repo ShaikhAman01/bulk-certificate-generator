@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, Any
 
 from pydantic import (
@@ -12,7 +12,7 @@ from pydantic import (
 )
 
 from app.config import settings
-from app.models import JobStatus
+from app.models import CertificateStatus, ErrorCode, JobStatus
 
 
 class RecipientIn(BaseModel):
@@ -41,3 +41,45 @@ class JobSubmitResponse(BaseModel):
     accepted_count: int
     rejected_count: int
 
+class JobProgress(BaseModel):
+    total: int
+    pending: int
+    processing: int
+    succeeded: int
+    failed: int
+
+
+class JobRead(BaseModel):
+    id: uuid.UUID
+    status: JobStatus
+    course_name: str
+    issued_on: date
+    issuer: str | None
+    template_id: str
+    created_at: datetime
+    started_at: datetime | None
+    completed_at: datetime | None
+    progress: JobProgress
+
+
+class CertificateRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    job_id: uuid.UUID
+    row_index: int
+    recipient_name: str | None
+    recipient_email: str | None
+    status: CertificateStatus
+    error_code: ErrorCode | None
+    error_message: str | None
+    certificate_number: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class CertificatePage(BaseModel):
+    items: list[CertificateRead]
+    total: int
+    limit: int
+    offset: int
