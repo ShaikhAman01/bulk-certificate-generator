@@ -1,4 +1,6 @@
+import io
 import uuid
+import zipfile
 
 import pytest
 
@@ -102,3 +104,30 @@ def test_unknown_ids_return_404(client, path):
 
 def test_malformed_id_returns_422(client):
     assert client.get("/api/v1/certificates/not-a-uuid").status_code == 422
+
+
+def test_download_job_zip(client, processed_job):
+    response = client.get(f"/api/v1/certificate-jobs/{processed_job}/download")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/zip"
+    names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
+    assert len(names) == 2
+    assert names[0].startswith("0000-CERT-")
+    assert names[1].startswith("0001-CERT-")
+
+
+def test_zip_of_unfinished_job_returns_409(client, submit):
+    job_id = submit([{"name": "Asha Rao", "email": "asha@example.com"}]).json()["id"]
+
+    response = client.get(f"/api/v1/certificate-jobs/{job_id}/download")
+
+    assert response.status_code == 409
+
+
+def test_zip_of_job_without_successes_returns_409(client, submit):
+    job_id = submit([{"name": "", "email": "broken"}]).json()["id"]
+
+    response = client.get(f"/api/v1/certificate-jobs/{job_id}/download")
+
+    assert response.status_code == 409
