@@ -1,5 +1,6 @@
 -r requirements.txt
-pytest
-pytest-cov
-httpx
-pypdf
+pytest==9.1.1
+pytest-cov==7.1.0
+httpx==0.28.1
+pypdf==6.20.0
+ruff==0.17.0
