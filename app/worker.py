@@ -10,11 +10,13 @@ from app.services.processing import claim_batch, process_certificate, recover_st
 
 logger = logging.getLogger("app.worker")
 
+
 def run_once(session_factory: sessionmaker[Session], batch_size: int) -> int:
     claimed = claim_batch(session_factory, batch_size)
     for cert_id in claimed:
         process_certificate(session_factory, cert_id)
     return len(claimed)
+
 
 def main() -> None:
     logging.basicConfig(

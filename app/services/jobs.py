@@ -16,18 +16,21 @@ from app.schemas import JobCreate, RecipientIn
 
 RAW_VALUE_MAX = 500
 
-def _raw_field(row: Any, key:str) -> str | None:
+
+def _raw_field(row: Any, key: str) -> str | None:
     if not isinstance(row, dict) or row.get(key) is None:
         return None
     return str(row[key])[:RAW_VALUE_MAX]
 
+
 def _format_errors(exc: ValidationError) -> str:
-    parts= []
+    parts = []
     for err in exc.errors():
         field = ".".join(str(p) for p in err["loc"]) or "row"
         msg = "must be an object with name and email" if err["type"] == "model_type" else err["msg"]
         parts.append(f"{field}: {msg}")
     return "; ".join(parts)
+
 
 def build_certificates(rows: list[Any]) -> list[Certificate]:
     certificates = []
@@ -74,6 +77,7 @@ def build_certificates(rows: list[Any]) -> list[Certificate]:
         )
     return certificates
 
+
 def create_job(db: Session, payload: JobCreate) -> CertificateJob:
     certificates = build_certificates(payload.recipients)
     job = CertificateJob(
@@ -92,6 +96,7 @@ def create_job(db: Session, payload: JobCreate) -> CertificateJob:
     db.add(job)
     db.commit()
     return job
+
 
 def get_status_counts(db: Session, job_id) -> dict[CertificateStatus, int]:
     rows = db.execute(

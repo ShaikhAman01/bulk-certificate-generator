@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 
 NUMBER_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 
+
 def generate_certificate_number() -> str:
     return "CERT-" + "".join(secrets.choice(NUMBER_ALPHABET) for _ in range(8))
+
 
 def claim_batch(session_factory: sessionmaker[Session], limit: int) -> list[uuid.UUID]:
     with session_factory() as db:
@@ -59,6 +61,7 @@ def claim_batch(session_factory: sessionmaker[Session], limit: int) -> list[uuid
             )
         db.commit()
         return [cert_id for cert_id, _ in claimed]
+
 
 def process_certificate(session_factory: sessionmaker[Session], cert_id: uuid.UUID) -> None:
     with session_factory() as db:
@@ -102,6 +105,7 @@ def process_certificate(session_factory: sessionmaker[Session], cert_id: uuid.UU
 
         finalize_job_if_done(db, job_id)
 
+
 def finalize_job_if_done(db: Session, job_id: uuid.UUID) -> None:
     counts = get_status_counts(db, job_id)
     if counts.get(CertificateStatus.PENDING) or counts.get(CertificateStatus.PROCESSING):
@@ -126,6 +130,7 @@ def finalize_job_if_done(db: Session, job_id: uuid.UUID) -> None:
     )
     db.commit()
 
+
 def recover_stale(session_factory: sessionmaker[Session]) -> None:
     cutoff = func.now() - timedelta(seconds=settings.lease_timeout_seconds)
     is_stale = (
@@ -140,19 +145,23 @@ def recover_stale(session_factory: sessionmaker[Session]) -> None:
             .values(status=CertificateStatus.PENDING, locked_at=None, updated_at=func.now())
             .execution_options(synchronize_session=False)
         ).rowcount
-        given_up_job_ids = db.execute(
-            update(Certificate)
-            .where(*is_stale, Certificate.attempts >= settings.max_attempts)
-            .values(
-                status=CertificateStatus.FAILED,
-                error_code=ErrorCode.GENERATION_ERROR,
-                error_message=f"worker lease expired {settings.max_attempts} times",
-                locked_at=None,
-                updated_at=func.now(),
+        given_up_job_ids = (
+            db.execute(
+                update(Certificate)
+                .where(*is_stale, Certificate.attempts >= settings.max_attempts)
+                .values(
+                    status=CertificateStatus.FAILED,
+                    error_code=ErrorCode.GENERATION_ERROR,
+                    error_message=f"worker lease expired {settings.max_attempts} times",
+                    locked_at=None,
+                    updated_at=func.now(),
+                )
+                .returning(Certificate.job_id)
+                .execution_options(synchronize_session=False)
             )
-            .returning(Certificate.job_id)
-            .execution_options(synchronize_session=False)
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         db.commit()
 
         if requeued or given_up_job_ids:

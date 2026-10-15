@@ -10,10 +10,12 @@ from app.services.storage import absolute_path
 
 
 def test_generates_a_pdf_for_each_valid_recipient(submit, run_worker):
-    job_id = submit([
-        {"name": "Asha Rao", "email": "asha@example.com"},
-        {"name": "Ravi Kumar", "email": "ravi@example.com"},
-    ]).json()["id"]
+    job_id = submit(
+        [
+            {"name": "Asha Rao", "email": "asha@example.com"},
+            {"name": "Ravi Kumar", "email": "ravi@example.com"},
+        ]
+    ).json()["id"]
 
     assert run_worker() == 2
 
@@ -31,21 +33,35 @@ def test_generates_a_pdf_for_each_valid_recipient(submit, run_worker):
 
 
 def test_job_progress_before_and_after_processing(client, submit, run_worker):
-    job_id = submit([
-        {"name": "Asha Rao", "email": "asha@example.com"},
-        {"name": "Ravi Kumar", "email": "ravi@example.com"},
-        {"name": "", "email": "broken"},
-    ]).json()["id"]
+    job_id = submit(
+        [
+            {"name": "Asha Rao", "email": "asha@example.com"},
+            {"name": "Ravi Kumar", "email": "ravi@example.com"},
+            {"name": "", "email": "broken"},
+        ]
+    ).json()["id"]
 
     before = client.get(f"/api/v1/certificate-jobs/{job_id}").json()
     assert before["status"] == "PENDING"
-    assert before["progress"] == {"total": 3, "pending": 2, "processing": 0, "succeeded": 0, "failed": 1}
+    assert before["progress"] == {
+        "total": 3,
+        "pending": 2,
+        "processing": 0,
+        "succeeded": 0,
+        "failed": 1,
+    }
 
     run_worker()
 
     after = client.get(f"/api/v1/certificate-jobs/{job_id}").json()
     assert after["status"] == "PARTIALLY_FAILED"
-    assert after["progress"] == {"total": 3, "pending": 0, "processing": 0, "succeeded": 2, "failed": 1}
+    assert after["progress"] == {
+        "total": 3,
+        "pending": 0,
+        "processing": 0,
+        "succeeded": 2,
+        "failed": 1,
+    }
     assert after["started_at"] is not None
     assert after["completed_at"] is not None
 
@@ -67,11 +83,13 @@ def test_one_generation_failure_does_not_block_others(client, submit, run_worker
         return real_render(context, template_id)
 
     monkeypatch.setattr(processing, "render_certificate_pdf", flaky_render)
-    job_id = submit([
-        {"name": "Asha Rao", "email": "asha@example.com"},
-        {"name": "Boom", "email": "boom@example.com"},
-        {"name": "Ravi Kumar", "email": "ravi@example.com"},
-    ]).json()["id"]
+    job_id = submit(
+        [
+            {"name": "Asha Rao", "email": "asha@example.com"},
+            {"name": "Boom", "email": "boom@example.com"},
+            {"name": "Ravi Kumar", "email": "ravi@example.com"},
+        ]
+    ).json()["id"]
 
     run_worker()
 
@@ -115,10 +133,12 @@ def test_concurrent_claims_never_overlap(submit):
 
 
 def test_stale_leases_are_requeued_then_given_up(submit):
-    submit([
-        {"name": "Retry Me", "email": "retry@example.com"},
-        {"name": "Give Up", "email": "giveup@example.com"},
-    ])
+    submit(
+        [
+            {"name": "Retry Me", "email": "retry@example.com"},
+            {"name": "Give Up", "email": "giveup@example.com"},
+        ]
+    )
     processing.claim_batch(SessionLocal, 10)
 
     with SessionLocal() as db:

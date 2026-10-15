@@ -11,10 +11,12 @@ def count_rows(model) -> int:
 
 
 def test_create_job_returns_202_with_location_and_counts(submit):
-    response = submit([
-        {"name": "Asha Rao", "email": "asha@example.com"},
-        {"name": "Ravi Kumar", "email": "ravi@example.com"},
-    ])
+    response = submit(
+        [
+            {"name": "Asha Rao", "email": "asha@example.com"},
+            {"name": "Ravi Kumar", "email": "ravi@example.com"},
+        ]
+    )
 
     assert response.status_code == 202
     body = response.json()
@@ -29,11 +31,34 @@ def test_create_job_returns_202_with_location_and_counts(submit):
 @pytest.mark.parametrize(
     "body",
     [
-        pytest.param({"certificate": {"course_name": "X", "issued_on": "2026-10-01"}, "recipients": []}, id="empty-recipients"),
-        pytest.param({"recipients": [{"name": "A", "email": "a@example.com"}]}, id="missing-certificate"),
-        pytest.param({"certificate": {"course_name": "", "issued_on": "2026-10-01"}, "recipients": [{"name": "A", "email": "a@example.com"}]}, id="blank-course"),
-        pytest.param({"certificate": {"course_name": "X", "issued_on": "not-a-date"}, "recipients": [{"name": "A", "email": "a@example.com"}]}, id="bad-date"),
-        pytest.param({"certificate": {"course_name": "X", "issued_on": "2026-10-01"}, "recipients": "not-a-list"}, id="recipients-not-list"),
+        pytest.param(
+            {"certificate": {"course_name": "X", "issued_on": "2026-10-01"}, "recipients": []},
+            id="empty-recipients",
+        ),
+        pytest.param(
+            {"recipients": [{"name": "A", "email": "a@example.com"}]}, id="missing-certificate"
+        ),
+        pytest.param(
+            {
+                "certificate": {"course_name": "", "issued_on": "2026-10-01"},
+                "recipients": [{"name": "A", "email": "a@example.com"}],
+            },
+            id="blank-course",
+        ),
+        pytest.param(
+            {
+                "certificate": {"course_name": "X", "issued_on": "not-a-date"},
+                "recipients": [{"name": "A", "email": "a@example.com"}],
+            },
+            id="bad-date",
+        ),
+        pytest.param(
+            {
+                "certificate": {"course_name": "X", "issued_on": "2026-10-01"},
+                "recipients": "not-a-list",
+            },
+            id="recipients-not-list",
+        ),
     ],
 )
 def test_structural_errors_reject_whole_request(client, body):
@@ -51,13 +76,15 @@ def test_too_many_recipients_is_rejected(submit):
 
 
 def test_invalid_rows_are_stored_as_failed_without_blocking_valid_rows(client, submit):
-    response = submit([
-        {"name": "  Asha Rao ", "email": "Asha@Example.com"},
-        {"name": "Asha Again", "email": "asha@example.COM"},
-        {"name": "Bad Email", "email": "not-an-email"},
-        {"name": 123, "email": "num@example.com"},
-        "not-an-object",
-    ])
+    response = submit(
+        [
+            {"name": "  Asha Rao ", "email": "Asha@Example.com"},
+            {"name": "Asha Again", "email": "asha@example.COM"},
+            {"name": "Bad Email", "email": "not-an-email"},
+            {"name": 123, "email": "num@example.com"},
+            "not-an-object",
+        ]
+    )
     body = response.json()
     assert body["accepted_count"] == 1
     assert body["rejected_count"] == 4

@@ -25,16 +25,19 @@ class JobStatus(enum.StrEnum):
     PARTIALLY_FAILED = "PARTIALLY_FAILED"
     FAILED = "FAILED"
 
+
 class CertificateStatus(enum.StrEnum):
     PENDING = "PENDING"
     PROCESSING = "PROCESSING"
     SUCCEEDED = "SUCCEEDED"
     FAILED = "FAILED"
 
+
 class ErrorCode(enum.StrEnum):
     VALIDATION_ERROR = "VALIDATION_ERROR"
     DUPLICATE_IN_JOB = "DUPLICATE_IN_JOB"
     GENERATION_ERROR = "GENERATION_ERROR"
+
 
 class CertificateJob(Base):
     __tablename__ = "certificate_jobs"
@@ -49,15 +52,14 @@ class CertificateJob(Base):
     issuer: Mapped[str | None] = mapped_column(String(200))
     template_id: Mapped[str] = mapped_column(String(50), default="default_v1")
     total_count: Mapped[int]
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    certificates: Mapped[list["Certificate"]] = relationship(
+    certificates: Mapped[list[Certificate]] = relationship(
         back_populates="job", cascade="all, delete-orphan", passive_deletes=True
     )
+
 
 class Certificate(Base):
     __tablename__ = "certificates"
@@ -67,9 +69,7 @@ class Certificate(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    job_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("certificate_jobs.id", ondelete="CASCADE")
-    )
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("certificate_jobs.id", ondelete="CASCADE"))
     row_index: Mapped[int]
     recipient_name: Mapped[str | None] = mapped_column(Text)
     recipient_email: Mapped[str | None] = mapped_column(Text)
@@ -85,9 +85,7 @@ class Certificate(Base):
     certificate_number: Mapped[str | None] = mapped_column(String(20), unique=True)
     attempts: Mapped[int] = mapped_column(default=0, server_default="0")
     locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

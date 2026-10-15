@@ -8,8 +8,10 @@ from app.config import settings
 def certificate_relpath(job_id: uuid.UUID, cert_id: uuid.UUID) -> str:
     return f"certificates/{job_id}/{cert_id}.pdf"
 
-def absolute_path(relpath:str) -> Path:
+
+def absolute_path(relpath: str) -> Path:
     return Path(settings.storage_dir) / relpath
+
 
 def save_pdf(relpath: str, data: bytes) -> None:
     final = absolute_path(relpath)
@@ -17,4 +19,3 @@ def save_pdf(relpath: str, data: bytes) -> None:
     tmp = final.with_suffix(".pdf.tmp")
     tmp.write_bytes(data)
     os.replace(tmp, final)
-    

@@ -5,11 +5,13 @@ import pytest
 
 @pytest.fixture
 def processed_job(submit, run_worker):
-    job_id = submit([
-        {"name": "Asha Rao", "email": "asha@example.com"},
-        {"name": "Ravi Kumar", "email": "ravi@example.com"},
-        {"name": "", "email": "broken"},
-    ]).json()["id"]
+    job_id = submit(
+        [
+            {"name": "Asha Rao", "email": "asha@example.com"},
+            {"name": "Ravi Kumar", "email": "ravi@example.com"},
+            {"name": "", "email": "broken"},
+        ]
+    ).json()["id"]
     run_worker()
     return job_id
 
@@ -32,7 +34,9 @@ def test_list_paginates_in_row_order(client, processed_job):
     assert [item["row_index"] for item in page["items"]] == [1, 2]
 
 
-@pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 101}, {"offset": -1}, {"status": "NOPE"}])
+@pytest.mark.parametrize(
+    "params", [{"limit": 0}, {"limit": 101}, {"offset": -1}, {"status": "NOPE"}]
+)
 def test_list_rejects_bad_query_params(client, processed_job, params):
     response = client.get(f"/api/v1/certificate-jobs/{processed_job}/certificates", params=params)
 
@@ -58,7 +62,10 @@ def test_download_pdf(client, processed_job):
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
-    assert f'filename="certificate-{item["certificate_number"]}.pdf"' in response.headers["content-disposition"]
+    assert (
+        f'filename="certificate-{item["certificate_number"]}.pdf"'
+        in response.headers["content-disposition"]
+    )
     assert response.content.startswith(b"%PDF-")
 
 

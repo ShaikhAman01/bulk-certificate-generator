@@ -13,9 +13,11 @@ _env = Environment(
     undefined=StrictUndefined,
 )
 
+
 def render_certificate_html(context: dict[str, Any], template_id: str = "default_v1") -> bytes:
     template = _env.get_template(TEMPLATE_FILES[template_id])
     return template.render(**context)
+
 
 def render_certificate_pdf(context: dict[str, Any], template_id: str = "default_v1") -> bytes:
     html = render_certificate_html(context, template_id)

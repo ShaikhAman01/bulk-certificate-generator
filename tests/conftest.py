@@ -65,9 +65,11 @@ def run_worker():
 
 @pytest.fixture
 def certificate_info():
-    return {"course_name": "Drone Mapping 101", "issued_on": "2026-10-01", "issuer": "Aereo Academy"}
-
-
+    return {
+        "course_name": "Drone Mapping 101",
+        "issued_on": "2026-10-01",
+        "issuer": "Aereo Academy",
+    }
 
 
 @pytest.fixture

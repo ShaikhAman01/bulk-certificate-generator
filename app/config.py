@@ -13,4 +13,5 @@ class Settings(BaseSettings):
     max_attempts: int = 3
     lease_timeout_seconds: int = 300
 
+
 settings = Settings()

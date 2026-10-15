@@ -21,6 +21,7 @@ class RecipientIn(BaseModel):
     name: Annotated[str, StringConstraints(min_length=1, max_length=100)]
     email: Annotated[EmailStr, AfterValidator(str.lower)]
 
+
 class CertificateInfo(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -28,11 +29,11 @@ class CertificateInfo(BaseModel):
     issued_on: date
     issuer: Annotated[str, StringConstraints(min_length=1, max_length=200)] | None = None
 
+
 class JobCreate(BaseModel):
     certificate: CertificateInfo
-    recipients: list[Any] = Field(
-        min_length=1, max_length=settings.max_recipients_per_job
-    )
+    recipients: list[Any] = Field(min_length=1, max_length=settings.max_recipients_per_job)
+
 
 class JobSubmitResponse(BaseModel):
     id: uuid.UUID
@@ -40,6 +41,7 @@ class JobSubmitResponse(BaseModel):
     total_count: int
     accepted_count: int
     rejected_count: int
+
 
 class JobProgress(BaseModel):
     total: int
