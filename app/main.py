@@ -1,10 +1,15 @@
 from contextlib import asynccontextmanager
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from app.api import certificates as certificates_api
 from app.api import jobs as jobs_api
-from app.db import init_db
+from app.db import get_db, init_db
 
 
 @asynccontextmanager
@@ -24,5 +29,9 @@ app.include_router(certificates_api.router, prefix="/api/v1")
 
 
 @app.get("/health")
-def health():
+def health(db: Annotated[Session, Depends(get_db)]):
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        return JSONResponse(status_code=503, content={"status": "unavailable"})
     return {"status": "ok"}
