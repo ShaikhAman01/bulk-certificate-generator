@@ -52,6 +52,8 @@ class CertificateJob(Base):
     issuer: Mapped[str | None] = mapped_column(String(200))
     template_id: Mapped[str] = mapped_column(String(50), default="default_v1")
     total_count: Mapped[int]
+    idempotency_key: Mapped[str | None] = mapped_column(String(100), unique=True)
+    request_hash: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

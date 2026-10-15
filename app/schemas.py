@@ -43,6 +43,12 @@ class JobSubmitResponse(BaseModel):
     rejected_count: int
 
 
+class JobRetryResponse(BaseModel):
+    id: uuid.UUID
+    status: JobStatus
+    requeued_count: int
+
+
 class JobProgress(BaseModel):
     total: int
     pending: int
