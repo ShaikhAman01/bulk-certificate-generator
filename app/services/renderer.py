@@ -14,7 +14,7 @@ _env = Environment(
 )
 
 
-def render_certificate_html(context: dict[str, Any], template_id: str = "default_v1") -> bytes:
+def render_certificate_html(context: dict[str, Any], template_id: str = "default_v1") -> str:
     template = _env.get_template(TEMPLATE_FILES[template_id])
     return template.render(**context)
 

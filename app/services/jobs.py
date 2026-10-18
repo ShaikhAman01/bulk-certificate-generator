@@ -1,5 +1,6 @@
 import hashlib
 import json
+import uuid
 from datetime import UTC, datetime
 from typing import Any
 
@@ -113,7 +114,7 @@ def create_job(
     return job
 
 
-def get_status_counts(db: Session, job_id) -> dict[CertificateStatus, int]:
+def get_status_counts(db: Session, job_id: uuid.UUID) -> dict[CertificateStatus, int]:
     rows = db.execute(
         select(Certificate.status, func.count())
         .where(Certificate.job_id == job_id)
@@ -154,7 +155,7 @@ def create_job_idempotent(
     return existing, False
 
 
-def count_rejected(db: Session, job_id) -> int:
+def count_rejected(db: Session, job_id: uuid.UUID) -> int:
     return db.scalar(
         select(func.count())
         .select_from(Certificate)
